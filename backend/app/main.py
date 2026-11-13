@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import os
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .models import (
@@ -23,6 +25,20 @@ app = FastAPI(
     title="Spider Safety Network API",
     description="MVP API for remote-area women’s safety, first-aid response, and drone-node coordination.",
     version="0.1.0",
+)
+
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+    if origin.strip()
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 store = InMemoryStore()
